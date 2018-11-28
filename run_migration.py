@@ -111,7 +111,7 @@ def connect_to_source(config):
     """
     print_log = False
 
-    dsn_str = cx_Oracle.makedsn(config['host'],config['port'],service_name=config['database'])
+    dsn_str = cx_Oracle.makedsn(config['host'],config['port'],sid="ORCL")
     con_string = 'oracle://{}:{}@'.format(config['username'], config['password']) + dsn_str
     engine = sqlalchemy.create_engine(con_string, echo = print_log)
 
@@ -168,8 +168,8 @@ def create_target_schema(schema_list,source_engine,target_engine):
         for t in source_metadata.sorted_tables:
 
             # clear the indexes and constraints
-            t.indexes.clear()
-            t.constraints.clear()
+            #t.indexes.clear()
+            #t.constraints.clear()
             
             # clean the data types
             for col in t.columns:

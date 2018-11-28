@@ -114,12 +114,20 @@ def copy_data(source_engine,source_schema,target_engine,table,
 
     # get the initial data chunk
     offset = 0
-    query =  """SELECT {} 
-                FROM {}.{} 
-                ORDER BY rowid 
-                OFFSET {} ROWS 
-                FETCH NEXT {} ROWS ONLY""".format(columns,source_schema,
-                    table.name,offset,chunksize)
+    query =  """SELECT {}
+                FROM
+                    (
+                        SELECT {}, ROWNUM AS rnum
+                        FROM
+                            (
+                                SELECT {} FROM {}.{} ORDER BY ROWID
+                            )
+                        WHERE
+                            ROWNUM <= {}
+                    )
+                WHERE
+                    rnum > {}""".format(columns,columns,columns,source_schema,table.name,chunksize+offset,offset)
+    #query = re.sub(r'[ \n]+', r' ', query)
     data = source_session.execute(query).fetchall()
 
     while data:
